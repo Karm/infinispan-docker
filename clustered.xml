@@ -75,7 +75,7 @@
             </console-handler>
             <size-rotating-file-handler name="FILE" autoflush="true">
                 <file relative-to="jboss.server.log.dir" path="server.log"/>
-                <rotate-size value="500M"/>
+                <rotate-size value="50M"/>
                 <max-backup-index value="4"/>
                 <level name="${infinispan_loglevel}"/>
             </size-rotating-file-handler>
@@ -103,11 +103,11 @@
             </formatter>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:deployment-scanner:2.0">
-            <deployment-scanner path="deployments" relative-to="jboss.server.base.dir" scan-interval="5000" runtime-failure-causes-rollback="${jboss.deployment.scanner.rollback.on.failure:false}"/>
+            <deployment-scanner path="deployments" relative-to="jboss.server.base.dir" scan-interval="10000" runtime-failure-causes-rollback="${jboss.deployment.scanner.rollback.on.failure:false}"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:datasources:4.0">
             <datasources>
-                <datasource jta="true" jndi-name="java:jboss/postgresql" pool-name="postgresql" enabled="true" use-ccm="false">
+   <!--             <datasource jta="true" jndi-name="java:jboss/postgresql" pool-name="postgresql" enabled="true" use-ccm="false">
                     <connection-url>Ignored</connection-url>
                     <driver-class>org.postgresql.Driver</driver-class>
                     <driver>postgresql</driver>
@@ -141,22 +141,27 @@
                         <datasource-class>org.postgresql.ds.PGPoolingDataSource</datasource-class>
                     </driver>
                 </drivers>
+-->
             </datasources>
         </subsystem>
         <subsystem xmlns="urn:infinispan:server:core:8.2" default-cache-container="clusteredX">
 
             <cache-container name="clusteredX" default-cache="default" statistics="true">
                 <transport lock-timeout="60000" channel="cluster"/>
-
+<!--            <global-state>
+                    <persistent-location path="@INFINISPAN_PERSISTENT_LOC@"/>
+                    <temporary-location path="@INFINISPAN_TEMP_LOC@"/>
+                </global-state>
+-->
                 <distributed-cache name="default" mode="SYNC" segments="40" owners="2" remote-timeout="60000" start="EAGER">
                     <locking acquire-timeout="60000" concurrency-level="500" striping="false"/>
                     <transaction mode="NONE"/>
                 </distributed-cache>
 
-                <replicated-cache name="infinispan_rules" mode="SYNC" start="EAGER">
-                    <locking acquire-timeout="120000" concurrency-level="1000" striping="false"/>
+                <replicated-cache name="infinispan_rules" mode="SYNC" statistics="true">
+                    <locking acquire-timeout="120000" concurrency-level="500" striping="false"/>
                     <transaction mode="NONE"/>
-                    <state-transfer timeout="120000"/>
+                    <state-transfer timeout="120000" chunk-size="512"/>
                     <expiration lifespan="-1" max-idle="-1" interval="-1"/>
                     <eviction strategy="NONE"/>
                     <indexing index="LOCAL">
@@ -165,6 +170,7 @@
                         <property name="hibernate.search.lucene_version">LUCENE_CURRENT</property>
                         <property name="default.indexmanager">near-real-time</property>
                     </indexing>
+<!--
                     <string-keyed-jdbc-store fetch-state="false"
                                              preload="true"
                                              shared="true"
@@ -182,12 +188,13 @@
                             <timestamp-column name="TIMESTAMP_COLUMN" type="BIGINT"/>
                         </string-keyed-table>
                     </string-keyed-jdbc-store>
+-->
                 </replicated-cache>
 
-                <replicated-cache name="infinispan_custom_lists" mode="SYNC" start="EAGER">
-                    <locking acquire-timeout="60000" concurrency-level="1000" striping="false"/>
+                <replicated-cache name="infinispan_custom_lists" mode="SYNC" statistics="true">
+                    <locking acquire-timeout="60000" concurrency-level="500" striping="false"/>
                     <transaction mode="NONE"/>
-                    <state-transfer timeout="120000"/>
+                    <state-transfer timeout="120000" chunk-size="512"/>
                     <expiration lifespan="-1" max-idle="-1" interval="-1"/>
                     <eviction strategy="NONE"/>
                     <indexing index="LOCAL">
@@ -196,6 +203,7 @@
                         <property name="hibernate.search.lucene_version">LUCENE_CURRENT</property>
                         <property name="default.indexmanager">near-real-time</property>
                     </indexing>
+<!--
                     <string-keyed-jdbc-store fetch-state="false"
                                              preload="true"
                                              shared="true"
@@ -213,14 +221,21 @@
                             <timestamp-column name="TIMESTAMP_COLUMN" type="BIGINT"/>
                         </string-keyed-table>
                     </string-keyed-jdbc-store>
-                </replicated-cache>
+-->
+               </replicated-cache>
 
-                <distributed-cache name="infinispan_gsb" mode="ASYNC" start="EAGER" segments="40" owners="2" remote-timeout="240000">
-                    <locking acquire-timeout="240000" concurrency-level="1000" striping="false"/>
+                <distributed-cache name="infinispan_gsb" mode="ASYNC" statistics="true" start="EAGER" segments="40" owners="2" remote-timeout="240000">
+                    <locking acquire-timeout="240000" concurrency-level="500" striping="false"/>
                     <transaction mode="NONE"/>
-                    <state-transfer timeout="800000"/>
+                    <state-transfer timeout="240000" chunk-size="2048"/>
                     <expiration lifespan="@INFINISPAN_GSB_LIFESPAN_MS@" max-idle="-1" interval="@INFINISPAN_CACHE_PERIODIC_PURGE_MS@"/>
                     <eviction strategy="NONE"/>
+                    <file-store
+                        shared="false" preload="true" fetch-state="true" read-only="false" purge="false"
+                        path="@INFINISPAN_PERSISTENT_LOC@-gsb" passivation="false">
+                       <write-behind />
+                    </file-store>
+<!--
                     <string-keyed-jdbc-store fetch-state="false"
                                              preload="true"
                                              shared="true"
@@ -238,15 +253,23 @@
                             <timestamp-column name="TIMESTAMP_COLUMN" type="BIGINT"/>
                         </string-keyed-table>
                     </string-keyed-jdbc-store>
+-->
                 </distributed-cache>
 
-                <distributed-cache name="infinispan_blacklist" mode="ASYNC" start="EAGER" segments="40" owners="2" remote-timeout="240000">
-                    <locking acquire-timeout="240000" concurrency-level="1000" striping="false"/>
+                <distributed-cache name="infinispan_blacklist" mode="ASYNC" statistics="true" start="EAGER" segments="40" owners="2" remote-timeout="240000">
+                    <locking acquire-timeout="30000" concurrency-level="500" striping="false"/>
                     <transaction mode="NONE"/>
-                    <state-transfer timeout="800000"/>
+                    <state-transfer timeout="240000" chunk-size="2048"/>
                     <expiration lifespan="@INFINISPAN_IOC_CACHE_LIFESPAN_MS@" max-idle="-1" interval="@INFINISPAN_CACHE_PERIODIC_PURGE_MS@"/>
-                    <eviction strategy="NONE"/>
-                    <string-keyed-jdbc-store fetch-state="false"
+                    <eviction strategy="@INFINISPAN_BLACKLIST_EVICTION_STRATEGY@" size="@INFINISPAN_BLACKLIST_EVICTION_MAX_ENTRIES@"/>
+                    <file-store
+                        shared="false" preload="true" fetch-state="true" read-only="false" purge="false"
+                        path="@INFINISPAN_PERSISTENT_LOC@-blacklist" passivation="false">
+                       <write-behind />
+                    </file-store>
+
+ <!--
+                   <string-keyed-jdbc-store fetch-state="false"
                                              preload="true"
                                              shared="true"
                                              read-only="false"
@@ -263,15 +286,23 @@
                             <timestamp-column name="TIMESTAMP_COLUMN" type="BIGINT"/>
                         </string-keyed-table>
                     </string-keyed-jdbc-store>
+-->
                 </distributed-cache>
 
-                <distributed-cache name="infinispan_whitelist" mode="ASYNC" start="EAGER" segments="40" owners="2" remote-timeout="240000">
-                    <locking acquire-timeout="240000" concurrency-level="1000" striping="false"/>
+                <distributed-cache name="infinispan_whitelist" mode="ASYNC" statistics="true" start="EAGER" segments="40" owners="2" remote-timeout="240000">
+                    <locking acquire-timeout="240000" concurrency-level="500" striping="false"/>
                     <transaction mode="NONE"/>
-                    <state-transfer timeout="800000"/>
+                    <state-transfer timeout="240000" chunk-size="2048"/>
                     <expiration lifespan="@INFINISPAN_WHITELIST_LIFESPAN_MS@" max-idle="-1" interval="@INFINISPAN_CACHE_PERIODIC_PURGE_MS@"/>
-                    <eviction strategy="NONE"/>
-                    <string-keyed-jdbc-store fetch-state="false"
+                    <eviction strategy="@INFINISPAN_WHITELIST_EVICTION_STRATEGY@" size="@INFINISPAN_WHITELIST_EVICTION_MAX_ENTRIES@"/>
+                    <file-store
+                        shared="false" preload="true" fetch-state="true" read-only="false" purge="false"
+                        path="@INFINISPAN_PERSISTENT_LOC@-whitelist" passivation="false">
+                       <write-behind />
+                    </file-store>
+
+ <!--
+                   <string-keyed-jdbc-store fetch-state="false"
                                              preload="true"
                                              shared="true"
                                              read-only="false"
@@ -288,7 +319,8 @@
                             <timestamp-column name="TIMESTAMP_COLUMN" type="BIGINT"/>
                         </string-keyed-table>
                     </string-keyed-jdbc-store>
-                </distributed-cache>
+ -->
+               </distributed-cache>
             </cache-container>
         </subsystem>
         <subsystem xmlns="urn:infinispan:server:endpoint:8.0">

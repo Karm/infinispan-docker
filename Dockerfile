@@ -45,12 +45,16 @@ ADD azure-storage-module.xml ${WF_MODULES}/com/microsoft/azure/storage/main/modu
 ADD jgroups-azure-module.xml ${WF_MODULES}/org/jgroups/azure/main/module.xml
 ADD postgresql-module.xml ${WF_MODULES}/org/postgresql/main/module.xml
 
+# Patching Infinispan :-(
+ADD infinispan-core.jar_8.2.6.Final+ISPN-7619 ${WF_MODULES}/org/infinispan/main/infinispan-core.jar
+
 RUN echo 'JAVA_OPTS="\
  -server \
  -Xms${INFINISPAN_MS_RAM:-8g} \
  -Xmx${INFINISPAN_MX_RAM:-8g} \
  -XX:+UseG1GC \
- -XX:InitiatingHeapOccupancyPercent=75 \
+ -XX:+UseStringDeduplication \
+ -XX:InitiatingHeapOccupancyPercent=70 \
  -XX:+HeapDumpOnOutOfMemoryError \
  -XX:HeapDumpPath=/opt/infinispan \
 "' >> /opt/infinispan/infinispan-server/bin/standalone.conf
