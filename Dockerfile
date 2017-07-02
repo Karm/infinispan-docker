@@ -1,4 +1,4 @@
-FROM fedora:24
+FROM fedora:25
 MAINTAINER Michal Karm Babacek <karm@email.cz
 LABEL description="Infinispan Server"
 
@@ -46,7 +46,7 @@ ADD jgroups-azure-module.xml ${WF_MODULES}/org/jgroups/azure/main/module.xml
 ADD postgresql-module.xml ${WF_MODULES}/org/postgresql/main/module.xml
 
 # Patching Infinispan :-(
-ADD infinispan-core.jar_8.2.6.Final+ISPN-7619 ${WF_MODULES}/org/infinispan/main/infinispan-core.jar
+#ADD infinispan-core.jar_8.2.6.Final+ISPN-7619 ${WF_MODULES}/org/infinispan/main/infinispan-core.jar
 
 RUN echo 'JAVA_OPTS="\
  -server \

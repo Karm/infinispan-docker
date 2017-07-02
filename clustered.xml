@@ -392,7 +392,7 @@
                             10000
                         </property>
                         <property name="max_join_attempts">
-                            24
+                            @INFINISPAN_GMS_MAX_JOIN_ATTEMPTS@
                         </property>
                         <property name="merge_timeout">
                             10000
