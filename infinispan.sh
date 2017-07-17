@@ -59,6 +59,7 @@ sed -i "s~@INFINISPAN_BLACKLIST_EVICTION_STRATEGY@~${INFINISPAN_BLACKLIST_EVICTI
 sed -i "s~@INFINISPAN_WHITELIST_EVICTION_MAX_ENTRIES@~${INFINISPAN_WHITELIST_EVICTION_MAX_ENTRIES:-"-1"}~g" ${WF_CONFIG}
 sed -i "s~@INFINISPAN_WHITELIST_EVICTION_STRATEGY@~${INFINISPAN_WHITELIST_EVICTION_STRATEGY:-"NONE"}~g" ${WF_CONFIG}
 
+
 # Better be volumes
 mkdir /tmp/${HOSTNAME}-persist
 mkdir /tmp/${HOSTNAME}-temp
@@ -76,7 +77,7 @@ sed -i "s~@INFINISPAN_TEMP_LOC@~${INFINISPAN_TEMP_LOC:-/tmp/${HOSTNAME}-temp}~g"
  -Djboss.bind.address.private=${MYIP} \
  -Djgroups.bind_addr=${MYIP} \
  -Djgroups.tcp.address=${MYIP} \
- -Djboss.node.name="${TEST_NODE_NAME:-$HOSTNAME}" \
+ -Djboss.node.name="${HOSTNAME}" \
  -Djboss.host.name="${HOSTNAME}" \
  -Djboss.qualified.host.name="${HOSTNAME}" \
  -Djboss.as.management.blocking.timeout=1800 \
@@ -84,6 +85,4 @@ sed -i "s~@INFINISPAN_TEMP_LOC@~${INFINISPAN_TEMP_LOC:-/tmp/${HOSTNAME}-temp}~g"
  -Djboss.jgroups.azure_ping.storage_access_key="${INFINISPAN_AZURE_ACCESS_KEY}" \
  -Djboss.jgroups.azure_ping.container="${INFINISPAN_AZURE_CONTAINER}" \
  -Dinfinispan_loglevel="${INFINISPAN_LOGLEVEL:-INFO}" \
- -Dinfinispan_hostname="${HOSTNAME}" \
- -Djboss.socket.binding.port-offset="${TEST_NODE_OFFSET:-0}"
-
+ -Dinfinispan_hostname="${HOSTNAME}"

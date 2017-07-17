@@ -160,16 +160,22 @@
 
                 <replicated-cache name="infinispan_rules" mode="SYNC" statistics="true">
                     <locking acquire-timeout="120000" concurrency-level="500" striping="false"/>
-                    <transaction mode="NONE"/>
+                    <transaction mode="NON_XA"/>
                     <state-transfer timeout="120000" chunk-size="512"/>
                     <expiration lifespan="-1" max-idle="-1" interval="-1"/>
                     <eviction strategy="NONE"/>
-                    <indexing index="LOCAL">
+                    <indexing index="ALL">
                         <property name="default.directory_provider">ram</property>
-                        <property name="hibernate.search.default.worker.execution">async</property>
+                        <property name="hibernate.search.default.worker.execution">sync</property>
                         <property name="hibernate.search.lucene_version">LUCENE_CURRENT</property>
                         <property name="default.indexmanager">near-real-time</property>
                     </indexing>
+                    <file-store
+                        shared="false" preload="true" fetch-state="true" read-only="false" purge="false"
+                        path="@INFINISPAN_PERSISTENT_LOC@-rules" passivation="false">
+                        <write-behind />
+                    </file-store>
+
 <!--
                     <string-keyed-jdbc-store fetch-state="false"
                                              preload="true"
@@ -193,16 +199,21 @@
 
                 <replicated-cache name="infinispan_custom_lists" mode="SYNC" statistics="true">
                     <locking acquire-timeout="60000" concurrency-level="500" striping="false"/>
-                    <transaction mode="NONE"/>
+                    <transaction mode="NON_XA"/>
                     <state-transfer timeout="120000" chunk-size="512"/>
                     <expiration lifespan="-1" max-idle="-1" interval="-1"/>
                     <eviction strategy="NONE"/>
-                    <indexing index="LOCAL">
+                    <indexing index="ALL">
                         <property name="default.directory_provider">ram</property>
-                        <property name="hibernate.search.default.worker.execution">async</property>
+                        <property name="hibernate.search.default.worker.execution">sync</property>
                         <property name="hibernate.search.lucene_version">LUCENE_CURRENT</property>
                         <property name="default.indexmanager">near-real-time</property>
                     </indexing>
+                    <file-store
+                        shared="false" preload="true" fetch-state="true" read-only="false" purge="false"
+                        path="@INFINISPAN_PERSISTENT_LOC@-custom_lists" passivation="false">
+                       <write-behind />
+                    </file-store>
 <!--
                     <string-keyed-jdbc-store fetch-state="false"
                                              preload="true"
