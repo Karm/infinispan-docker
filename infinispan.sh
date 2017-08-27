@@ -77,7 +77,7 @@ sed -i "s~@INFINISPAN_TEMP_LOC@~${INFINISPAN_TEMP_LOC:-/tmp/${HOSTNAME}-temp}~g"
  -Djboss.bind.address.private=${MYIP} \
  -Djgroups.bind_addr=${MYIP} \
  -Djgroups.tcp.address=${MYIP} \
- -Djboss.node.name="${HOSTNAME}" \
+ -Djboss.node.name="${TEST_NODE_NAME:-$HOSTNAME}" \
  -Djboss.host.name="${HOSTNAME}" \
  -Djboss.qualified.host.name="${HOSTNAME}" \
  -Djboss.as.management.blocking.timeout=1800 \
@@ -85,4 +85,5 @@ sed -i "s~@INFINISPAN_TEMP_LOC@~${INFINISPAN_TEMP_LOC:-/tmp/${HOSTNAME}-temp}~g"
  -Djboss.jgroups.azure_ping.storage_access_key="${INFINISPAN_AZURE_ACCESS_KEY}" \
  -Djboss.jgroups.azure_ping.container="${INFINISPAN_AZURE_CONTAINER}" \
  -Dinfinispan_loglevel="${INFINISPAN_LOGLEVEL:-INFO}" \
- -Dinfinispan_hostname="${HOSTNAME}"
+ -Dinfinispan_hostname="${HOSTNAME}" \
+ -Djboss.socket.binding.port-offset="${TEST_NODE_OFFSET:-0}"
