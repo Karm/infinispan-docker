@@ -59,6 +59,16 @@ sed -i "s~@INFINISPAN_BLACKLIST_EVICTION_STRATEGY@~${INFINISPAN_BLACKLIST_EVICTI
 sed -i "s~@INFINISPAN_WHITELIST_EVICTION_MAX_ENTRIES@~${INFINISPAN_WHITELIST_EVICTION_MAX_ENTRIES:-"-1"}~g" ${WF_CONFIG}
 sed -i "s~@INFINISPAN_WHITELIST_EVICTION_STRATEGY@~${INFINISPAN_WHITELIST_EVICTION_STRATEGY:-"NONE"}~g" ${WF_CONFIG}
 
+# The default is FILE_PING
+if [ ${INFINISPAN_PING,,} = "AZURE" ];
+then
+    sed -i "s~<!--AZURE_PING~~g" ${WF_CONFIG}
+    sed -i "s~AZURE_PING-->~~g" ${WF_CONFIG}
+else
+    mkdir "${INFINISPAN_FILEPING_PATH:-/tmp/fileping}"
+    sed -i "s~<!--FILE_PING~~g" ${WF_CONFIG}
+    sed -i "s~FILE_PING-->~~g" ${WF_CONFIG}
+fi
 
 # Better be volumes
 mkdir /tmp/${HOSTNAME}-persist
@@ -84,6 +94,7 @@ sed -i "s~@INFINISPAN_TEMP_LOC@~${INFINISPAN_TEMP_LOC:-/tmp/${HOSTNAME}-temp}~g"
  -Djboss.jgroups.azure_ping.storage_account_name="${INFINISPAN_AZURE_ACCOUNT_NAME}" \
  -Djboss.jgroups.azure_ping.storage_access_key="${INFINISPAN_AZURE_ACCESS_KEY}" \
  -Djboss.jgroups.azure_ping.container="${INFINISPAN_AZURE_CONTAINER}" \
+ -Djboss.jgroups.file_ping.path="${INFINISPAN_FILEPING_PATH:-/tmp/fileping}" \
  -Dinfinispan_loglevel="${INFINISPAN_LOGLEVEL:-INFO}" \
  -Dinfinispan_hostname="${HOSTNAME}" \
  -Djboss.socket.binding.port-offset="${TEST_NODE_OFFSET:-0}"
