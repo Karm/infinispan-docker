@@ -386,6 +386,8 @@
             <stacks default="${jboss.default.jgroups.stack:azure}">
                 <stack name="azure">
                     <transport type="TCP" socket-binding="jgroups-tcp"/>
+                    <!-- See infinispan.sh, the undermentioned is uncommented on container startup -->
+                    <!--AZURE_PING
                     <protocol type="azure.AZURE_PING">
                         <property name="storage_account_name">
                             ${jboss.jgroups.azure_ping.storage_account_name}
@@ -397,6 +399,20 @@
                             ${jboss.jgroups.azure_ping.container}
                         </property>
                     </protocol>
+                    AZURE_PING-->
+                     <!--FILE_PING
+                     <protocol type="FILE_PING">
+                        <property name="location">
+                            ${jboss.jgroups.file_ping.path}
+                        </property>
+                        <property name="remove_all_files_on_view_change">
+                            true
+                        </property>
+                        <property name="remove_old_coords_on_view_change">
+                            true
+                        </property>
+                    </protocol>
+                    FILE_PING-->
                     <protocol type="MERGE3"/>
                     <protocol type="FD_SOCK" socket-binding="jgroups-tcp-fd">
                         <property name="get_cache_timeout">
